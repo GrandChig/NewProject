@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be060cb5129c0af4788498d36c81bf96, type: 3}
+  m_Name: Data_EnergyBlast
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectileDash.Combat.ProjectileData
+  BaseDamage: 10
+  BaseSpeed: 15
+  MaxRange: 30
+  HitstopDuration: 0.08
+  RecoilTier: 1
+  MaxActiveOnStage: 1
+  OverflowRule: 0
+  TargetingOrder: 0
+  ProjectilePrefab: {fileID: 0}
+  ChargeBehavior: {fileID: 0}
+  SpawnBehavior: {fileID: 11400000, guid: 29971c552e8180240baea770d24116f8, type: 2}
+  FlightBehavior: {fileID: 11400000, guid: e8a805fe762e0a54884959b81c9b74c3, type: 2}
+  ImpactBehavior: {fileID: 11400000, guid: 8322aa17b6f63b54db85c1681b152557, type: 2}
+  TeleportReaction: {fileID: 0}
