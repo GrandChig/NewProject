@@ -16,13 +16,16 @@ MonoBehaviour:
   BaseSpeed: 15
   MaxRange: 30
   HitstopDuration: 0.08
-  RecoilTier: 1
+  RecoilTier: 3
   MaxActiveOnStage: 1
   OverflowRule: 0
   TargetingOrder: 0
-  ProjectilePrefab: {fileID: 0}
+  ProjectilePrefab: {fileID: 5911215801912519406, guid: 2b84aa6297a2f3341a999e2311bdbd66, type: 3}
+  CollisionMask:
+    serializedVersion: 2
+    m_Bits: 8
   ChargeBehavior: {fileID: 0}
   SpawnBehavior: {fileID: 11400000, guid: 29971c552e8180240baea770d24116f8, type: 2}
   FlightBehavior: {fileID: 11400000, guid: e8a805fe762e0a54884959b81c9b74c3, type: 2}
-  ImpactBehavior: {fileID: 11400000, guid: 8322aa17b6f63b54db85c1681b152557, type: 2}
+  ImpactBehavior: {fileID: 11400000, guid: 732796777a6e3c549b56c3a40bf266a2, type: 2}
   TeleportReaction: {fileID: 0}

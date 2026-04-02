@@ -9,7 +9,7 @@ public class PlayerTempTester : MonoBehaviour
     [Header("Testing Controls")]
     [SerializeField] private float acceleration = 50f;
     [SerializeField] private float jumpBurst = 20f;
-    [SerializeField] private float dashBurst = 40f;
+
 
     private void Start()
     {

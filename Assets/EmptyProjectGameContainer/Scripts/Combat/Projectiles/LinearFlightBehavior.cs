@@ -27,8 +27,9 @@ namespace ProjectileDash.Combat
         /// <inheritdoc/>
         public override Vector2 GetVelocity(Vector2 currentVelocity, float dt)
         {
-            // Pure linear: velocity never changes. The projectile travels in a perfectly straight line.
-            return _initialVelocity;
+            // By returning currentVelocity, we allow external behaviors (like Bounces)
+            // to modify the projectile's travel path mid-flight.
+            return currentVelocity;
         }
     }
 }

@@ -227,10 +227,17 @@ namespace ProjectileDash.Combat
             BaseProjectile target = GetTeleportTarget();
             if (target == null) return;
 
-            // ── Move player to projectile — position ONLY, velocity preserved ────
+            // ── Move player to projectile — position updated, momentum inherited ─
             Vector3 destination = target.transform.position;
             destination.z = 0f;
             transform.position = destination;
+
+            // Inheritance: Apply the projectile's current velocity to the player
+            CustomPhysicsController physics = GetComponent<CustomPhysicsController>();
+            if (physics != null)
+            {
+                physics.SetVelocity(target.CurrentVelocity);
+            }
 
             // ── Notify camera (smooth snap after instant warp) ────────────────────
             DynamicCameraManager.Instance?.TeleportCameraToTargets();

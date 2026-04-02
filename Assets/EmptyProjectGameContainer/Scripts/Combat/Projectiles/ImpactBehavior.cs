@@ -8,6 +8,6 @@ namespace ProjectileDash.Combat
     /// </summary>
     public abstract class ImpactBehavior : ScriptableObject
     {
-        public abstract void OnImpact(BaseProjectile projectile, Collider2D other);
+        public abstract void OnImpact(BaseProjectile projectile, RaycastHit2D hit);
     }
 }

@@ -50,7 +50,18 @@ public class CustomPhysicsController : MonoBehaviour
         HandleGravity();
         HandleFriction();
         MoveAndCollide();
+        CheckGrounded(); 
         EnforceZLock();
+    }
+
+    private void CheckGrounded()
+    {
+        // Explicitly check for ground slightly below the collider using skinWidth as a buffer.
+        // This ensures IsGrounded is true even if the player is stationary (CurrentVelocity.y == 0).
+        RaycastHit2D hit = Physics2D.BoxCast(transform.position, colliderSize, 0f, Vector2.down, skinWidth * 2f, environmentLayer);
+        
+        // We are grounded if we hit something and its surface is relatively flat (normal points up)
+        IsGrounded = (hit && hit.normal.y > 0.5f);
     }
 
     private void HandleGravity()
@@ -81,7 +92,6 @@ public class CustomPhysicsController : MonoBehaviour
     private void MoveAndCollide()
     {
         Vector2 displacement = CurrentVelocity * Time.deltaTime;
-        IsGrounded = false;
 
         // X Axis Movement and Collision
         if (displacement.x != 0)
@@ -115,11 +125,6 @@ public class CustomPhysicsController : MonoBehaviour
             if (hitY)
             {
                 displacement.y = (hitY.distance - skinWidth) * dirY.y;
-
-                if (hitY.normal.y > 0.5f)
-                {
-                    IsGrounded = true;
-                }
 
                 // High speed bounce check
                 if (Mathf.Abs(CurrentVelocity.y) >= bounceVelocityThreshold)

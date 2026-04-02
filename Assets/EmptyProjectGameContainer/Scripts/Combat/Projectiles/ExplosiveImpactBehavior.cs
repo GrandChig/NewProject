@@ -35,7 +35,7 @@ namespace ProjectileDash.Combat
         // ─────────────────────────────────────────────────────────────────────────
 
         /// <inheritdoc/>
-        public override void OnImpact(BaseProjectile projectile, Collider2D other)
+        public override void OnImpact(BaseProjectile projectile, RaycastHit2D hit)
         {
             Vector2 blastCentre = new Vector2(projectile.transform.position.x, projectile.transform.position.y);
 
@@ -49,13 +49,13 @@ namespace ProjectileDash.Combat
             // ── 2. Find all targets in blast radius (2D only) ─────────────────────
             Collider2D[] hits = Physics2D.OverlapCircleAll(blastCentre, _blastRadius, _hitLayers);
 
-            foreach (Collider2D hit in hits)
+            foreach (Collider2D targetHit in hits)
             {
                 // Skip the projectile's own collider if it has one
-                if (hit.transform == projectile.transform) continue;
+                if (targetHit.transform == projectile.transform) continue;
 
                 // Attempt to apply damage via the IDamageable interface
-                IDamageable damageable = hit.GetComponent<IDamageable>();
+                IDamageable damageable = targetHit.GetComponent<IDamageable>();
                 if (damageable != null)
                 {
                     // Pass FinalDamage (already factored with ChargeResult.DamageMultiplier)

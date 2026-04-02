@@ -10,7 +10,7 @@
 2. **THE LAW OF MOMENTUM (VECTOR PRESERVATION):**
    - The player's `CurrentVelocity` (Vector2/Vector3 mapped to 2D) is sacred.
    - Actions like stopping, charging, or attacking do NOT instantly set velocity to zero. We use gradual friction/drag.
-   - Teleportation ONLY changes `transform.position`. It MUST NEVER reset, alter, or zero out the `CurrentVelocity` vector. 
+   - Teleportation transfers the **Projectile's current velocity vector** to the player upon arrival. This overrides the player's previous momentum to ensure snappy, purposeful redirection based on the projectile's flight path. 
 
 3. **ELASTIC PHYSICS (RUBBERY FEEL):**
    - The game is strictly 2.5D. All movement, aiming, and physics calculations happen ONLY on the X (horizontal) and Y (vertical) axes. Lock the Z-axis position to 0 for all gameplay logic. This means utilizing `Physics2D` or zeroed-extents 3D raycasts.

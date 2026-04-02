@@ -12,16 +12,31 @@ namespace ProjectileDash.Combat
     ///   • Collision detection uses Physics2D (OnTriggerEnter2D) to enforce 2.5D.
     ///   • Registers/unregisters with DynamicCameraManager for framing.
     /// </summary>
-    [RequireComponent(typeof(Collider2D))]
+    [RequireComponent(typeof(CircleCollider2D))]
     public class BaseProjectile : MonoBehaviour
     {
+        private CircleCollider2D _collider;
+
+        private void Awake()
+        {
+            _collider = GetComponent<CircleCollider2D>();
+
+            // Register with camera for framing
+            if (DynamicCameraManager.Instance != null)
+                DynamicCameraManager.Instance.RegisterProjectile(transform);
+        }
+
         // ─────────────────── Runtime State ────────────────────────────────────────
 
         private ProjectileData _data;
         private PlayerProjectileManager _owner;
 
         /// <summary>Current velocity vector (world units/sec) used by FlightBehavior.</summary>
+        public Vector2 CurrentVelocity => _velocity;
         private Vector2 _velocity;
+
+        /// <summary>Allows Behaviors to override the current flight path (e.g. for Bouncing).</summary>
+        public void SetVelocity(Vector2 newVelocity) => _velocity = newVelocity;
 
         /// <summary>Total distance traveled since spawn, checked against MaxRange.</summary>
         private float _distanceTraveled;
@@ -31,6 +46,9 @@ namespace ProjectileDash.Combat
 
         /// <summary>Active Recoil Tier after any charge override.</summary>
         public int ActiveRecoilTier { get; private set; }
+
+        /// <summary>How many times this specific projectile has bounced off the environment.</summary>
+        public int ActiveBounceCount { get; set; }
 
         /// <summary>True once DestroyProjectile has been called; prevents re-entrance.</summary>
         private bool _isDestroyed;
@@ -74,15 +92,6 @@ namespace ProjectileDash.Combat
 
         // ─────────────────── Unity Lifecycle ──────────────────────────────────────
 
-        private void Awake()
-        {
-            // Register with camera the moment the GO is created (before Initialize may be called)
-            if (DynamicCameraManager.Instance != null)
-                DynamicCameraManager.Instance.RegisterProjectile(transform);
-            else
-                Debug.LogWarning($"[BaseProjectile] DynamicCameraManager.Instance is null — camera framing will not include this projectile.");
-        }
-
         private void Update()
         {
             if (_isDestroyed || _data == null) return;
@@ -91,13 +100,38 @@ namespace ProjectileDash.Combat
             if (_data.FlightBehavior != null)
                 _velocity = _data.FlightBehavior.GetVelocity(_velocity, Time.deltaTime);
 
-            // ── 2. Move via transform (never Rigidbody) ──────────────────────────
-            Vector2 displacement = _velocity * Time.deltaTime;
-            Vector3 newPos       = transform.position + new Vector3(displacement.x, displacement.y, 0f);
-            newPos.z             = 0f; // Enforce 2.5D — Z is always 0 (CORE_PILLAR #3)
-            transform.position   = newPos;
+            // ── 2. Swept Collision (CORE_PILLAR: Kinematic Movement) ──────────────
+            float frameDistance = _velocity.magnitude * Time.deltaTime;
+            Vector2 direction   = _velocity.normalized;
 
-            // ── 3. Track range and destroy if limit exceeded ─────────────────────
+                if (frameDistance > 0)
+                {
+                    // PILLAR COMPLIANCE: Use a static query (CircleCast) like the CustomPhysicsController's BoxCast.
+                    // This bypasses the Project Settings Collision Matrix and relies purely on the Data's LayerMask.
+                    float radius = _collider.radius * transform.localScale.x;
+                    RaycastHit2D hit = Physics2D.CircleCast(transform.position, radius, direction, frameDistance + 0.05f, _data.CollisionMask);
+
+                    if (hit)
+                    {
+                        Debug.Log($"[BaseProjectile] Collision Detected with {hit.collider.name} at {hit.point} (Normal: {hit.normal})");
+                        
+                        // Move to the contact point + a tiny nudge along the normal to prevent sticking
+                        transform.position = (Vector3)hit.centroid + (Vector3)hit.normal * 0.01f;
+                        
+                        // Trigger Impact with full hit data
+                        _data?.ImpactBehavior?.OnImpact(this, hit);
+                        
+                        return;
+                    }
+                }
+
+            // ── 3. Normal Movement (if no hit) ──────────────────────────────────
+            Vector2 displacement = _velocity * Time.deltaTime;
+            Vector3 targetPos    = transform.position + new Vector3(displacement.x, displacement.y, 0f);
+            targetPos.z          = 0f;
+            transform.position   = targetPos;
+
+            // ── 4. Track range ───────────────────────────────────────────────────
             _distanceTraveled += displacement.magnitude;
             if (_distanceTraveled >= _data.MaxRange)
             {
@@ -105,13 +139,15 @@ namespace ProjectileDash.Combat
             }
         }
 
-        // ─────────────────── Collision (2D — enforces 2.5D pillar) ────────────────
+        // ─────────────────── Debug Gizmos ─────────────────────────────────────────
 
-        private void OnTriggerEnter2D(Collider2D other)
+        private void OnDrawGizmos()
         {
-            if (_isDestroyed) return;
+            if (_collider == null) _collider = GetComponent<CircleCollider2D>();
+            if (_collider == null) return;
 
-            _data?.ImpactBehavior?.OnImpact(this, other);
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, _collider.radius * transform.localScale.x);
         }
 
         // ─────────────────── Teleport API ─────────────────────────────────────────

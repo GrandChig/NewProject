@@ -73,6 +73,10 @@ namespace ProjectileDash.Combat
         [Tooltip("The GameObject to Instantiate. Must have a BaseProjectile component.")]
         [SerializeField] public GameObject ProjectilePrefab;
 
+        [Header("Collision")]
+        [Tooltip("What layers should this projectile collide with? (e.g. Environment, Enemies).")]
+        [SerializeField] public LayerMask CollisionMask;
+
         // ─────────────────────────── Behavior Slots ──────────────────────────────
 
         [Header("Behavior Slots")]
